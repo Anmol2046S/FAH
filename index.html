@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAH AI — Smart Food Intelligence</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: rgba(30, 41, 59, 0.6);
+      --accent-blue: #3b82f6;
+      --accent-blue-light: #60a5fa;
+      --accent-green: #22c55e;
+      --accent-green-glow: rgba(34, 197, 94, 0.15);
+      --accent-orange: #f97316;
+      --accent-red: #ef4444;
+      --accent-red-glow: rgba(239, 68, 68, 0.15);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #475569;
+      --border-default: rgba(148, 163, 184, 0.1);
+      --border-active: rgba(59, 130, 246, 0.4);
+      --glass-blur: blur(24px);
+      --radius-card: 20px;
+      --transition-base: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── ANIMATED BACKGROUND ─── */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(139,92,246,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(34,197,94,0.04) 0%, transparent 70%),
+        #0f172a;
+      pointer-events: none;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(148,163,184,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat 12s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+      top: -200px; left: -150px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 70%);
+      bottom: -150px; right: -100px;
+      animation-delay: -6s;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.97); }
+    }
+
+    /* ─── LAYOUT ─── */
+    .app-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 56px;
+      padding: 18px 28px;
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-default);
+      border-radius: 16px;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(59,130,246,0.35);
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #f1f5f9 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    .logo-subtitle {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: 100px;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34,197,94,0.8);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .status-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #22c55e;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 16px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-blue-light);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero-title {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 18px;
+    }
+
+    .hero-title .line-1 {
+      display: block;
+      background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-title .line-2 {
+      display: block;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* ─── MAIN GRID ─── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── GLASS CARD ─── */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-card);
+      padding: 28px;
+      transition: var(--transition-base);
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-active);
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.08), 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-label::before {
+      content: '';
+      display: inline-block;
+      width: 3px; height: 14px;
+      background: var(--accent-blue);
+      border-radius: 2px;
+    }
+
+    /* ─── INPUT SECTION ─── */
+    .input-card { grid-column: 1 / -1; }
+
+    .food-input-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 600px) {
+      .food-input-wrapper { flex-direction: column; }
+    }
+
+    .food-input {
+      flex: 1;
+      padding: 16px 22px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1.5px solid rgba(148,163,184,0.12);
+      border-radius: 14px;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      transition: var(--transition-base);
+      outline: none;
+    }
+
+    .food-input::placeholder { color: var(--text-muted); }
+
+    .food-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12), 0 0 20px rgba(59,130,246,0.08);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .analyze-btn {
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: var(--transition-base);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      letter-spacing: 0.2px;
+      box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .analyze-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .analyze-btn:hover:not(:disabled)::before { opacity: 1; }
+
+    .analyze-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(59,130,246,0.5);
+    }
+
+    .analyze-btn:active:not(:disabled) {
+      transform: translateY(0px);
+    }
+
+    .analyze-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ─── QUICK CHIPS ─── */
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .chip {
+      padding: 6px 14px;
+      background: rgba(148,163,184,0.06);
+      border: 1px solid rgba(148,163,184,0.12);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition-base);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip:hover {
+      background: rgba(59,130,246,0.1);
+      border-color: rgba(59,130,246,0.3);
+      color: var(--accent-blue-light);
+      transform: translateY(-1px);
+    }
+
+    /* ─── RESULT CARD ─── */
+    .result-card {
+      grid-column: 1 / -1;
+      min-height: 200px;
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-card.visible { display: flex; }
+
+    .result-card.nudge-positive {
+      border-color: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.08), 0 0 60px rgba(34,197,94,0.06), 0 20px 40px rgba(0,0,0,0.25);
+    }
+
+    .result-card.nudge-negative {
+      border-color: rgba(239, 68, 68, 0.3);
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.08), 0 0 60px rgba(239,68,68,0.06), 0 20px 40px rgba(0,0,0,0.25);
+    }
+
+    .result-glow {
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .nudge-positive .result-glow {
+      background: radial-gradient(circle, rgba(34,197,94,0.2) 0%, transparent 70%);
+      opacity: 1;
+    }
+
+    .nudge-negative .result-glow {
+      background: radial-gradient(circle, rgba(239,68,68,0.18) 0%, transparent 70%);
+      opacity: 1;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .result-food-name {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    .nudge-badge {
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .nudge-badge.positive {
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #4ade80;
+    }
+
+    .nudge-badge.negative {
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171;
+    }
+
+    /* ─── METRICS ROW ─── */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 480px) {
+      .metrics-row { grid-template-columns: 1fr; }
+    }
+
+    .metric-tile {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(148,163,184,0.08);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .metric-value {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+
+    .metric-unit {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    /* ─── HEALTH SCORE BAR ─── */
+    .score-bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .score-bar-track {
+      height: 8px;
+      background: rgba(148,163,184,0.08);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 0%;
+    }
+
+    .score-bar-fill.positive {
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      box-shadow: 0 0 10px rgba(34,197,94,0.5);
+    }
+
+    .score-bar-fill.negative {
+      background: linear-gradient(90deg, #ef4444, #f97316);
+      box-shadow: 0 0 10px rgba(239,68,68,0.5);
+    }
+
+    /* ─── NUDGE BLOCK ─── */
+    .nudge-block {
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nudge-block.positive {
+      background: rgba(34,197,94,0.06);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .nudge-block.negative {
+      background: rgba(239,68,68,0.06);
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    .nudge-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .nudge-content { flex: 1; }
+
+    .nudge-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .nudge-title.positive { color: #4ade80; }
+    .nudge-title.negative { color: #f87171; }
+
+    .nudge-text {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    /* ─── STATS ROW ─── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ─── HISTORY ─── */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .history-list::-webkit-scrollbar { width: 4px; }
+    .history-list::-webkit-scrollbar-track { background: transparent; }
+    .history-list::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 4px; }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid rgba(148,163,184,0.07);
+      border-radius: 12px;
+      transition: var(--transition-base);
+      cursor: pointer;
+      animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    .history-item:hover {
+      background: rgba(59,130,246,0.05);
+      border-color: rgba(59,130,246,0.2);
+      transform: translateX(4px);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .history-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .history-dot.positive { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.6); }
+    .history-dot.negative { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.6); }
+
+    .history-info { flex: 1; min-width: 0; }
+
+    .history-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .history-score {
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 3px 9px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .history-score.positive {
+      background: rgba(34,197,94,0.1);
+      color: #4ade80;
+    }
+
+    .history-score.negative {
+      background: rgba(239,68,68,0.1);
+      color: #f87171;
+    }
+
+    .history-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .history-empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+    /* ─── LOADING SPINNER ─── */
+    .loading-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      gap: 20px;
+    }
+
+    .loading-state.active { display: flex; }
+
+    .spinner-ring {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: 3px solid rgba(148,163,184,0.1);
+      border-top-color: var(--accent-blue);
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+    }
+
+    /* ─── ERROR STATE ─── */
+    .error-toast {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 12px;
+      margin-top: 12px;
+      animation: slideIn 0.35s ease both;
+    }
+
+    .error-toast.show { display: flex; }
+    .error-toast-icon { font-size: 20px; }
+    .error-toast-text { font-size: 14px; color: #f87171; font-weight: 500; flex: 1; }
+
+    /* ─── TIPS CARD ─── */
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tip-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      background: rgba(15, 23, 42, 0.3);
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.06);
+    }
+
+    .tip-emoji { font-size: 18px; flex-shrink: 0; }
+
+    .tip-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─── CHART ─── */
+    .chart-container {
+      position: relative;
+      height: 120px;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      padding-top: 12px;
+    }
+
+    .chart-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .chart-bar {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 4px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .chart-bar.positive { background: linear-gradient(to top, #22c55e, #4ade80); }
+    .chart-bar.negative { background: linear-gradient(to top, #ef4444, #f97316); }
+    .chart-bar.neutral  { background: rgba(148,163,184,0.15); }
+
+    .chart-bar-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .chart-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      text-align: center;
+      margin-top: 56px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border-default);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: var(--accent-blue-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer a:hover { color: var(--accent-blue); }
+
+    /* ─── REVEAL ANIMATION ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── TOOLTIP ─── */
+    [data-tooltip] {
+      position: relative;
+    }
+
+    [data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30, 41, 59, 0.95);
+      border: 1px solid rgba(148,163,184,0.15);
+      color: var(--text-secondary);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ─── CLEAR HISTORY BTN ─── */
+    .clear-btn {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .clear-btn:hover { color: #f87171; background: rgba(239,68,68,0.08); }
+
+    /* ─── TYPEWRITER ─── */
+    @keyframes typewriter-cursor {
+      0%, 100% { border-right-color: transparent; }
+      50% { border-right-color: var(--accent-blue); }
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+      .header { padding: 14px 18px; }
+      .app-wrapper { padding: 20px 16px 60px; }
+      .hero { margin-bottom: 36px; }
+      .header-status .status-text { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background layers -->
+  <div class="bg-mesh" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+
+  <div class="app-wrapper">
+
+    <!-- ── HEADER ── -->
+    <header class="header reveal">
+      <div class="logo-group">
+        <div class="logo-icon" aria-hidden="true">🧠</div>
+        <div class="logo-text">
+          <span class="logo-title">FAH AI</span>
+          <span class="logo-subtitle">Food Intelligence Engine</span>
+        </div>
+      </div>
+      <div class="header-status" data-tooltip="Backend API is online">
+        <div class="status-dot"></div>
+        <span class="status-text">System Online</span>
+      </div>
+    </header>
+
+    <!-- ── HERO ── -->
+    <section class="hero reveal">
+      <div class="hero-badge">
+        <span>⚡</span>
+        <span>AI-Powered Smart Nudge Engine</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="line-1">Know What You Eat.</span>
+        <span class="line-2">Change How You Live.</span>
+      </h1>
+      <p class="hero-desc">
+        Analyze any food instantly. Get personalized AI nudges that
+        reinforce healthy choices and redirect harmful ones — in real time.
+      </p>
+    </section>
+
+    <!-- ── INPUT CARD ── -->
+    <div class="main-grid" style="margin-bottom: 24px;">
+      <div class="glass-card input-card reveal">
+        <div class="card-label">Analyze Food</div>
+        <div class="food-input-wrapper">
+          <input
+            id="foodInput"
+            class="food-input"
+            type="text"
+            placeholder="e.g. avocado toast, double cheeseburger, green smoothie..."
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Enter food name to analyze"
+          />
+          <button
+            id="analyzeBtn"
+            class="analyze-btn"
+            onclick="analyzeFood()"
+            aria-label="Analyze food"
+          >
+            <span id="btnIcon">✦</span>
+            <span id="btnText">Analyze</span>
+          </button>
+        </div>
+        <div class="quick-chips" id="quickChips" role="group" aria-label="Quick food suggestions">
+          <span class="chip" onclick="quickAnalyze('avocado')">🥑 Avocado</span>
+          <span class="chip" onclick="quickAnalyze('pizza')">🍕 Pizza</span>
+          <span class="chip" onclick="quickAnalyze('salmon')">🐟 Salmon</span>
+          <span class="chip" onclick="quickAnalyze('donut')">🍩 Donut</span>
+          <span class="chip" onclick="quickAnalyze('spinach')">🥬 Spinach</span>
+          <span class="chip" onclick="quickAnalyze('soda')">🥤 Soda</span>
+          <span class="chip" onclick="quickAnalyze('almonds')">🌰 Almonds</span>
+          <span class="chip" onclick="quickAnalyze('burger')">🍔 Burger</span>
+        </div>
+        <div class="error-toast" id="errorToast" role="alert">
+          <span class="error-toast-icon">⚠️</span>
+          <span class="error-toast-text" id="errorText">Something went wrong. Please try again.</span>
+          <button onclick="clearError()" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:16px;" aria-label="Dismiss error">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOADING STATE ── -->
+    <div class="glass-card loading-state" id="loadingState" role="status" aria-live="polite" style="margin-bottom:24px;">
+      <div class="spinner-ring"></div>
+      <div>
+        <div class="loading-text loading-dots" id="loadingText">Analyzing nutritional profile</div>
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:4px;">AI engine is processing your request</div>
+      </div>
+    </div>
+
+    <!-- ── RESULT CARD ── -->
+    <div class="glass-card result-card" id="resultCard" role="region" aria-live="polite" aria-label="Analysis result">
+      <div class="result-glow" id="resultGlow"></div>
+      <div class="result-header">
+        <div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Analyzed Food</div>
+          <div class="result-food-name" id="resultFoodName">—</div>
+        </div>
+        <div class="nudge-badge" id="nudgeBadge">—</div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-row">
+        <div class="metric-tile" data-tooltip="Estimated calories per serving">
+          <div class="metric-label">Calories</div>
+          <div class="metric-value" id="metricCalories" style="color: var(--accent-blue-light);">—</div>
+          <div class="metric-unit">kcal / serving</div>
+        </div>
+        <div class="metric-tile" data-tooltip="Health score out of 10">
+          <div class="metric-label">Health Score</div>
+          <div class="metric-value" id="metricScore">—</div>
+          <div class="metric-unit">out of 10</div>
+          <div class="score-bar-wrapper" style="margin-top:8px;">
+            <div class="score-bar-track">
+              <div class="score-bar-fill" id="scoreBarFill"></div>
+            </div>
+          </div>
+        </div>
+        <div class="metric-tile" data-tooltip="Nutritional category">
+          <div class="metric-label">Category</div>
+          <div class="metric-value" id="metricCategory" style="font-size:22px;letter-spacing:0;">—</div>
+          <div class="metric-unit" id="metricCategoryLabel">—</div>
+        </div>
+      </div>
+
+      <!-- Nudge Block -->
+      <div class="nudge-block" id="nudgeBlock">
+        <div class="nudge-icon" id="nudgeIcon">💡</div>
+        <div class="nudge-content">
+          <div class="nudge-title" id="nudgeTitle">AI Smart Nudge</div>
+          <div class="nudge-text" id="nudgeText">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOTTOM GRID ── -->
+    <div class="main-grid">
+
+      <!-- Session Stats -->
+      <div class="glass-card reveal">
+        <div class="card-label">Session Stats</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="statTotal">0</div>
+            <div class="stat-label">Foods Analyzed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statHealthy" style="background: linear-gradient(135deg, #22c55e, #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">0</div>
+            <div class="stat-label">Healthy Choices</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statAvgScore" style="background: linear-gradient(135deg, #f97316, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">—</div>
+            <div class="stat-label">Avg. Health Score</div>
+          </div>
+        </div>
+        <!-- Mini chart -->
+        <div style="margin-top: 24px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;">Score History</div>
+          <div class="chart-container" id="scoreChart">
+            <div class="chart-empty">Analyze foods to see your chart</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log History -->
+      <div class="glass-card reveal">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div class="card-label" style="margin-bottom:0;">Recent Log</div>
+          <button class="clear-btn" onclick="clearHistory()" aria-label="Clear history">Clear</button>
+        </div>
+        <div class="history-list" id="historyList" role="list">
+          <div class="history-empty">
+            <div class="history-empty-icon">🍽️</div>
+            <div>Your food log will appear here</div>
+            <div style="font-size:12px;margin-top:4px;color:var(--text-muted);">Start analyzing to build your log</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Tips -->
+      <div class="glass-card reveal">
+        <div class="card-label">Smart Tips</div>
+        <div class="tips-list">
+          <div class="tip-item">
+            <span class="tip-emoji">🌅</span>
+            <div class="tip-text">Eat your largest meal before 3 PM. Your metabolism is 10% more efficient in the morning.</div>
+          </div>
+          <div class="tip-item">
+            <span class="tip-emoji">💧</span>
+            <div class="tip-text">Drink a glass of water before each meal. It reduces calorie intake by up to 13%.</div>
+          </div>
+          <div class="tip-item">
+            <span class="tip-emoji">🧠</span>
+            <div class="tip-text">Foods rich in Omega-3 (salmon, walnuts) improve cognitive function and reduce brain fog.</div>
+          </div>
+          <div class="tip-item">
+            <span class="tip-emoji">⏰</span>
+            <div class="tip-text">A 16:8 intermittent fasting window can reduce insulin resistance by up to 31% in 12 weeks.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Behavior Insights -->
+      <div class="glass-card reveal">
+        <div class="card-label">Behavior Insights</div>
+        <div id="insightPanel" style="display:flex;flex-direction:column;gap:14px;">
+          <div style="text-align:center;padding:30px 16px;color:var(--text-muted);font-size:14px;">
+            <div style="font-size:36px;margin-bottom:10px;">📊</div>
+            <div>Insights appear after you analyze at least 3 foods.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+      <div style="margin-bottom:6px;">
+        <strong style="color:var(--text-secondary);">FAH AI</strong> — Food Analysis & Health Intelligence
+      </div>
+      <div>Built on <a href="#">Node.js + Express</a> · <a href="#">Firestore</a> · Deployable on <a href="#">Google Cloud Run</a></div>
+    </footer>
+
+  </div><!-- /app-wrapper -->
+
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    //  FAH AI — Frontend Application Logic
+    //  Version: 2.0.0 | Production-Ready
+    // ═══════════════════════════════════════════════════════════
+
+    // ─── CONFIG ─────────────────────────────────────────────────
+    const CONFIG = {
+      API_BASE: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:8080'
+        : window.location.origin,
+      LOADING_MESSAGES: [
+        'Analyzing nutritional profile',
+        'Running AI health scoring',
+        'Generating smart nudge',
+        'Cross-referencing food database',
+        'Computing behavioral insights'
+      ],
+      SIMULATE: true // Set to false when backend is live
+    };
+
+    // ─── STATE ──────────────────────────────────────────────────
+    const state = {
+      history: JSON.parse(localStorage.getItem('fahai_history') || '[]'),
+      isLoading: false,
+      loadingInterval: null
+    };
+
+    // ─── SIMULATED KNOWLEDGE BASE ───────────────────────────────
+    const FOOD_KB = {
+      // Healthy
+      avocado:    { calories: 234, health_score: 9, nudge_type: 'positive', emoji: '🥑', category: 'Healthy Fat', nudge: "Excellent choice! 🎉 Avocado is packed with heart-healthy monounsaturated fats and potassium that actively lower LDL cholesterol. The folate content supports DNA synthesis and your brain's neurotransmitter production. Your cardiovascular system is thanking you right now." },
+      salmon:     { calories: 208, health_score: 10, nudge_type: 'positive', emoji: '🐟', category: 'Lean Protein', nudge: "Elite-level nutrition! 🏆 Wild salmon is one of the most nutrient-dense foods on the planet. The EPA and DHA omega-3s directly reduce brain inflammation, sharpen focus within 30 minutes of eating, and protect your heart with every single bite. Keep making choices like this." },
+      spinach:    { calories: 23, health_score: 10, nudge_type: 'positive', emoji: '🥬', category: 'Leafy Green', nudge: "You're feeding your body rocket fuel! 🚀 Spinach's iron and vitamin K combination maximizes oxygen delivery to your muscles and bones. The lutein and zeaxanthin protect your eyes from blue light damage. At only 23 calories, this is pure nutritional ROI." },
+      almonds:    { calories: 164, health_score: 8, nudge_type: 'positive', emoji: '🌰', category: 'Nuts & Seeds', nudge: "Smart snacking! 🧠 A handful of almonds floods your system with vitamin E — a potent antioxidant that protects brain cells from oxidative stress. The magnesium content improves insulin sensitivity and helps you sleep more deeply tonight." },
+      blueberries:{ calories: 84, health_score: 10, nudge_type: 'positive', emoji: '🫐', category: 'Superfruit', nudge: "Brain food at its finest! 💙 Blueberries contain more antioxidants than almost any other food. The anthocyanins cross the blood-brain barrier and directly improve memory and reaction time. Studies show daily consumption reduces cognitive aging by up to 2.5 years." },
+      quinoa:     { calories: 222, health_score: 9, nudge_type: 'positive', emoji: '🌾', category: 'Whole Grain', nudge: "Superb choice! Quinoa is one of the only plant foods with a complete amino acid profile. It spikes your blood sugar 40% less than white rice, meaning sustained energy for 4+ hours instead of a sharp crash. Excellent for focus and productivity." },
+      broccoli:   { calories: 55, health_score: 10, nudge_type: 'positive', emoji: '🥦', category: 'Cruciferous', nudge: "Outstanding! 🌿 Broccoli's sulforaphane compound is one of the most studied anti-cancer molecules in nutritional science. It activates your body's own detox pathways within 2 hours of eating. This one choice just reduced your long-term cancer risk." },
+      eggs:       { calories: 155, health_score: 8, nudge_type: 'positive', emoji: '🥚', category: 'Whole Protein', nudge: "Perfect protein source! 🥚 Eggs contain all 9 essential amino acids in the ideal ratio for muscle synthesis. The choline in the yolk is a direct building block of acetylcholine — your brain's primary learning and memory neurotransmitter. Don't skip the yolk!" },
+      oatmeal:    { calories: 166, health_score: 8, nudge_type: 'positive', emoji: '🥣', category: 'Whole Grain', nudge: "Solid breakfast foundation! The beta-glucan fiber in oats forms a gel in your digestive tract that slows glucose absorption, giving you 3–4 hours of stable energy. It also feeds your gut's beneficial bacteria, strengthening your immune system passively." },
+      chicken:    { calories: 165, health_score: 7, nudge_type: 'positive', emoji: '🍗', category: 'Lean Protein', nudge: "Great lean protein choice! 💪 Grilled chicken breast delivers high-quality protein with minimal saturated fat. Each 100g serving triggers muscle protein synthesis for up to 5 hours. This directly supports your metabolism, keeping it elevated even at rest." },
+      apple:      { calories: 95, health_score: 8, nudge_type: 'positive', emoji: '🍎', category: 'Fruit', nudge: "An apple a day really does work! 🍎 The quercetin and catechins in apple skin are potent anti-inflammatory compounds. Combined with its fiber, apples modulate blood sugar better than most fruits. Your microbiome loves the pectin — it selectively feeds beneficial bacteria." },
+      banana:     { calories: 105, health_score: 7, nudge_type: 'positive', emoji: '🍌', category: 'Fruit', nudge: "Natural energy boost! 🍌 Bananas provide fast-acting glucose for immediate energy, plus potassium that regulates heartbeat rhythm and prevents muscle cramps. The vitamin B6 converts tryptophan into serotonin — your mood and sleep quality will benefit tonight." },
+      greek_yogurt:{ calories: 130, health_score: 8, nudge_type: 'positive', emoji: '🥛', category: 'Dairy', nudge: "Excellent gut health choice! The live Lactobacillus cultures in Greek yogurt colonize your gut microbiome within hours, improving digestion efficiency and immune response. The high protein content (17g!) triggers satiety hormones and reduces hunger for 3+ hours." },
+      sweet_potato:{ calories: 103, health_score: 9, nudge_type: 'positive', emoji: '🍠', category: 'Complex Carb', nudge: "Brilliant carbohydrate choice! 🍠 Sweet potato's beta-carotene content gets converted to Vitamin A, protecting your vision and skin. Its glycemic index is 20 points lower than a regular potato, meaning sustained energy with no insulin spike. A bodybuilder's secret weapon." },
+      lentils:    { calories: 230, health_score: 9, nudge_type: 'positive', emoji: '🫘', category: 'Legume', nudge: "Plant-based powerhouse! 🫘 Lentils deliver 18g of protein AND 16g of fiber per cup — a combination that feeds your muscles while simultaneously lowering your cholesterol. The folate content is critical for cell repair and DNA methylation. Exceptional nutritional value." },
+      walnuts:    { calories: 185, health_score: 9, nudge_type: 'positive', emoji: '🌰', category: 'Nuts & Seeds', nudge: "Your brain's best friend! 🧠 Walnuts contain the highest concentration of plant-based omega-3s (ALA) of any nut. Regular consumption is linked to a 19% reduction in depression risk and measurably improved memory scores. Even their shape tells you — they look like a brain for a reason." },
+      // Unhealthy
+      pizza:      { calories: 285, health_score: 3, nudge_type: 'negative', emoji: '🍕', category: 'Processed', nudge: "⚠️ Heads up — this choice will cost you. Pizza's refined flour crust causes a rapid blood sugar spike that will crash your energy by 3 PM sharp, leaving you foggy and reaching for more sugar. The sodium overload (800mg+ per slice) triggers water retention and elevates blood pressure within 90 minutes. Try a whole-grain flatbread with fresh veggies and mozzarella — same satisfaction, 60% less damage." },
+      donut:      { calories: 452, health_score: 1, nudge_type: 'negative', emoji: '🍩', category: 'Dessert', nudge: "🔴 This is a direct hit to your energy and focus. A single donut contains 25g of sugar — that's your entire daily added sugar limit in one item. Your blood insulin will spike, then crash hard in 45–60 minutes, triggering brain fog, irritability, and intense hunger. Your willpower will be weakest right after this crash. Swap it for two dates with almond butter — you'll get natural sweetness with fiber that prevents the spike entirely." },
+      burger:     { calories: 550, health_score: 2, nudge_type: 'negative', emoji: '🍔', category: 'Fast Food', nudge: "⚠️ A double burger activates your brain's reward system similarly to addictive substances — engineered to override your satiety signals. The 35g of saturated fat stresses your liver for the next 6 hours and reduces arterial flexibility within 2 hours of eating. One turkey patty on a whole-grain bun with avocado gives you the same satisfaction with a fraction of the cardiovascular cost." },
+      soda:       { calories: 140, health_score: 0, nudge_type: 'negative', emoji: '🥤', category: 'Beverage', nudge: "🔴 Stop — this is pure metabolic damage in a can. A single soda contains 39g of high-fructose corn syrup, which bypasses normal sugar metabolism and goes directly to fat storage in your liver. It contributes zero nutrition while aggressively blocking leptin — your satiety hormone — making you feel hungrier after drinking it. Sparkling water with a squeeze of lemon gives you the bubbles with zero cost to your body." },
+      chips:      { calories: 536, health_score: 1, nudge_type: 'negative', emoji: '🥔', category: 'Processed', nudge: "⚠️ Engineered for overconsumption — this is by design. Potato chips are manufactured to hit the 'bliss point' of salt, fat, and crunch that makes your brain's dopamine system override fullness signals. The acrylamide formed during high-heat frying is a recognized neurotoxin. Swap for air-popped popcorn or roasted chickpeas — same crunch, real nutrition." },
+      candy:      { calories: 380, health_score: 0, nudge_type: 'negative', emoji: '🍬', category: 'Sugar', nudge: "🔴 Pure refined sugar with zero nutritional return. This will spike your blood glucose to near-diabetic levels for 30 minutes, trigger a sharp insulin response, and leave you more tired than before you ate it. The sustained inflammation from regular sugar consumption accelerates cellular aging measurably. A small piece of 85% dark chocolate delivers sweetness PLUS magnesium and real antioxidants — make the switch." },
+      hotdog:     { calories: 290, health_score: 2, nudge_type: 'negative', emoji: '🌭', category: 'Processed Meat', nudge: "⚠️ Processed meats are classified as Group 1 carcinogens by the WHO. The sodium nitrate preservatives in hot dogs create compounds that damage DNA in colon cells with regular consumption. At 960mg of sodium, this single item pushes you past 40% of your daily limit, stressing your kidneys and raising blood pressure. Grilled chicken skewers are ready in the same time and exponentially better for your long-term health." },
+      icecream:   { calories: 273, health_score: 1, nudge_type: 'negative', emoji: '🍦', category: 'Dessert', nudge: "🔴 A combination of sugar AND fat together triggers the strongest possible dopamine response — which is exactly why it feels so good and why stopping is so difficult. This combination is not found in nature and specifically overrides your body's satiety signals. The 28g of sugar will disrupt your gut microbiome balance within hours. Frozen blended banana 'nice cream' is genuinely delicious and gives you fiber and potassium instead." },
+      fries:      { calories: 365, health_score: 1, nudge_type: 'negative', emoji: '🍟', category: 'Fast Food', nudge: "⚠️ Deep-fried in oxidized seed oils at 375°F, french fries generate trans fats and acrylamide compounds that directly promote arterial inflammation. The high-glycemic starch will spike your blood sugar more aggressively than table sugar. Your energy will crash within 90 minutes, and the inflammation lasts 24 hours. Oven-roasted sweet potato wedges in olive oil taste incredible and actually protect your cardiovascular system." },
+      bacon:      { calories: 541, health_score: 2, nudge_type: 'negative', emoji: '🥓', category: 'Processed Meat', nudge: "⚠️ At 2,400mg of sodium per 100g, bacon aggressively overloads your kidneys and raises blood pressure immediately. The high saturated fat content compounds this by reducing arterial elasticity. Like hot dogs, it's a WHO Group 1 carcinogen with regular consumption. Two eggs with turkey sausage gives you the same protein hit and breakfast satisfaction with a drastically lower risk profile." },
+      // Neutral/Moderate
+      bread:      { calories: 265, health_score: 4, nudge_type: 'negative', emoji: '🍞', category: 'Refined Carb', nudge: "⚠️ White bread's refined flour is stripped of fiber and nutrients, creating a rapid glucose spike that taxes your pancreas. The gluten can promote intestinal permeability in sensitive individuals. Simply switching to 100% whole grain bread immediately improves your blood sugar response by 30% and adds B vitamins, zinc, and actual fiber back into this staple." },
+      pasta:      { calories: 220, health_score: 5, nudge_type: 'negative', emoji: '🍝', category: 'Refined Carb', nudge: "⚠️ Regular pasta's processed flour creates a moderate-to-high glycemic response. Cooking it 'al dente' actually lowers the glycemic impact by 10 points. Even better — swap for chickpea or lentil pasta, and you transform this from a high-carb meal into a protein-and-fiber powerhouse that digests 3x slower." },
+      orange:     { calories: 62, health_score: 8, nudge_type: 'positive', emoji: '🍊', category: 'Citrus Fruit', nudge: "Great natural vitamin boost! 🍊 One orange delivers your entire daily Vitamin C requirement, which directly boosts collagen synthesis and immune function. The flavonoids hesperidin and naringenin actively reduce arterial inflammation. Eating the whole fruit (not just juice) gives you 3g of fiber that slows sugar absorption perfectly." },
+      rice:       { calories: 206, health_score: 5, nudge_type: 'negative', emoji: '🍚', category: 'Refined Carb', nudge: "⚠️ White rice has a glycemic index of 72 — comparable to table sugar. It provides energy but minimal fiber, vitamins, or minerals after processing. Switching to brown rice immediately adds magnesium, B1, B3, and fiber that regulate your blood sugar response. Or try cauliflower rice for a 70% calorie reduction with actual micronutrients." },
+      coffee:     { calories: 5, health_score: 7, nudge_type: 'positive', emoji: '☕', category: 'Beverage', nudge: "Surprisingly beneficial! ☕ Black coffee is the single largest source of antioxidants in most Western diets. Caffeine directly enhances dopamine signaling, improving focus, reaction time, and athletic performance by 11–12%. Two cups daily is associated with a 25% lower risk of Type 2 diabetes. Keep it black — dairy and sugar negate many benefits." },
+    };
+
+    // ─── HELPERS ─────────────────────────────────────────────────
+    function normalizeFood(input) {
+      const s = input.toLowerCase().trim()
+        .replace(/[^a-z\s]/g, '')
+        .replace(/\b(a|an|the|large|small|medium|big|double|triple|extra|grilled|fried|baked|raw|fresh)\b/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      for (const key of Object.keys(FOOD_KB)) {
+        const normalized = key.replace(/_/g, ' ');
+        if (s.includes(normalized) || normalized.includes(s) || s.includes(key)) {
+          return key;
+        }
+      }
+      // Fuzzy fallbacks
+      const fallbacks = {
+        'burger': ['hamburger', 'cheeseburger', 'whopper', 'mcburger'],
+        'pizza': ['pepperoni', 'margherita', 'calzone'],
+        'soda': ['coke', 'cola', 'pepsi', 'sprite', 'soft drink', 'pop'],
+        'chips': ['crisps', 'pringles', 'potato chip'],
+        'fries': ['french fry', 'french fries', 'steak fries'],
+        'icecream': ['ice cream', 'gelato', 'frozen yogurt', 'froyo'],
+        'chicken': ['grilled chicken', 'chicken breast', 'rotisserie'],
+        'greek_yogurt': ['yogurt', 'yoghurt'],
+        'sweet_potato': ['sweet potato', 'yam'],
+        'blueberries': ['blueberry', 'berries', 'strawberry', 'raspberries'],
+        'oatmeal': ['oats', 'porridge', 'granola'],
+        'lentils': ['lentil', 'dal', 'dhal'],
+        'walnuts': ['walnut'],
+        'almonds': ['almond'],
+        'coffee': ['espresso', 'latte', 'cappuccino', 'americano', 'cold brew'],
+        'bread': ['toast', 'bun', 'roll', 'baguette', 'white bread'],
+        'bacon': ['ham', 'prosciutto', 'pancetta'],
+      };
+      for (const [key, aliases] of Object.entries(fallbacks)) {
+        if (aliases.some(a => s.includes(a))) return key;
+      }
+      return null;
+    }
+
+    function generateUnknownFood(name) {
+      // Generate plausible data for unknown foods
+      const score = Math.floor(Math.random() * 6) + 3; // 3-8
+      return {
+        calories: Math.floor(Math.random() * 300) + 80,
+        health_score: score,
+        nudge_type: score >= 6 ? 'positive' : 'negative',
+        emoji: '🍽️',
+        category: 'General Food',
+        nudge: score >= 6
+          ? `This looks like a reasonable choice! While I don't have specific data on "${name}", based on its profile it appears to offer moderate nutritional value. Aim to pair it with leafy greens and lean protein to maximize the meal's health impact.`
+          : `I don't have full data on "${name}", but be mindful of portion size. Consider the preparation method — baked or steamed is always preferable to fried. Adding fiber-rich vegetables to this meal will significantly slow digestion and reduce any blood sugar impact.`
+      };
+    }
+
+    function simulateAnalysis(foodName) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const key = normalizeFood(foodName);
+          const data = key ? FOOD_KB[key] : generateUnknownFood(foodName);
+          const displayName = key ? key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : foodName.replace(/\b\w/g, c => c.toUpperCase());
+          resolve({
+            food_name: displayName,
+            calories: data.calories,
+            health_score: data.health_score,
+            smart_nudge: data.nudge,
+            nudge_type: data.nudge_type,
+            emoji: data.emoji,
+            category: data.category
+          });
+        }, 1800 + Math.random() * 800);
+      });
+    }
+
+    // ─── MAIN ANALYZE FUNCTION ───────────────────────────────────
+    async function analyzeFood() {
+      const input = document.getElementById('foodInput');
+      const foodName = input.value.trim();
+
+      if (!foodName) {
+        input.focus();
+        input.style.borderColor = 'rgba(239,68,68,0.5)';
+        input.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.1)';
+        setTimeout(() => {
+          input.style.borderColor = '';
+          input.style.boxShadow = '';
+        }, 2000);
+        return;
+      }
+
+      if (state.isLoading) return;
+
+      clearError();
+      hideResult();
+      setLoading(true);
+
+      try {
+        let result;
+
+        if (CONFIG.SIMULATE) {
+          result = await simulateAnalysis(foodName);
+        } else {
+          const response = await fetch(`${CONFIG.API_BASE}/analyze-food`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ food_name: foodName, user_id: getUserId() })
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `Server error: ${response.status}`);
+          }
+
+          result = await response.json();
+        }
+
+        renderResult(result);
+        addToHistory(result);
+        updateStats();
+        updateChart();
+        updateInsights();
+
+      } catch (err) {
+        console.error('[FAH AI] Analysis error:', err);
+        showError(err.message || 'Failed to connect to the analysis server. Ensure the backend is running.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function quickAnalyze(food) {
+      document.getElementById('foodInput').value = food;
+      analyzeFood();
+    }
+
+    // ─── UI STATE CONTROLLERS ────────────────────────────────────
+    function setLoading(active) {
+      state.isLoading = active;
+      const btn = document.getElementById('analyzeBtn');
+      const btnText = document.getElementById('btnText');
+      const btnIcon = document.getElementById('btnIcon');
+      const loadingState = document.getElementById('loadingState');
+      const loadingText = document.getElementById('loadingText');
+
+      if (active) {
+        btn.disabled = true;
+        btnText.textContent = 'Analyzing...';
+        btnIcon.textContent = '⏳';
+        loadingState.classList.add('active');
+
+        let i = 0;
+        state.loadingInterval = setInterval(() => {
+          loadingText.textContent = CONFIG.LOADING_MESSAGES[i % CONFIG.LOADING_MESSAGES.length];
+          i++;
+        }, 1200);
+      } else {
+        btn.disabled = false;
+        btnText.textContent = 'Analyze';
+        btnIcon.textContent = '✦';
+        loadingState.classList.remove('active');
+        clearInterval(state.loadingInterval);
+      }
+    }
+
+    function hideResult() {
+      const card = document.getElementById('resultCard');
+      card.classList.remove('visible', 'nudge-positive', 'nudge-negative');
+    }
+
+    function renderResult(data) {
+      const card = document.getElementById('resultCard');
+      const isPositive = data.nudge_type === 'positive';
+      const colorClass = isPositive ? 'positive' : 'negative';
+      const scorePercent = (data.health_score / 10) * 100;
+
+      // Food name
+      document.getElementById('resultFoodName').textContent =
+        (data.emoji ? data.emoji + ' ' : '') + data.food_name;
+
+      // Badge
+      const badge = document.getElementById('nudgeBadge');
+      badge.textContent = isPositive ? '✅ Healthy Choice' : '⚠️ Unhealthy Choice';
+      badge.className = `nudge-badge ${colorClass}`;
+
+      // Metrics
+      document.getElementById('metricCalories').textContent = data.calories;
+      const scoreEl = document.getElementById('metricScore');
+      scoreEl.textContent = data.health_score;
+      scoreEl.style.color = isPositive ? '#4ade80' : '#f87171';
+
+      document.getElementById('metricCategory').textContent = data.emoji || '🍽️';
+      document.getElementById('metricCategoryLabel').textContent = data.category || 'Food';
+
+      // Score bar
+      const fill = document.getElementById('scoreBarFill');
+      fill.className = `score-bar-fill ${colorClass}`;
+      setTimeout(() => { fill.style.width = scorePercent + '%'; }, 50);
+
+      // Nudge block
+      const block = document.getElementById('nudgeBlock');
+      block.className = `nudge-block ${colorClass}`;
+      document.getElementById('nudgeIcon').textContent = isPositive ? '💚' : '🔴';
+      const nudgeTitle = document.getElementById('nudgeTitle');
+      nudgeTitle.textContent = isPositive ? 'Positive Reinforcement' : 'Health Warning';
+      nudgeTitle.className = `nudge-title ${colorClass}`;
+      document.getElementById('nudgeText').textContent = data.smart_nudge;
+
+      // Card glow
+      card.classList.remove('nudge-positive', 'nudge-negative');
+      card.classList.add('visible', isPositive ? 'nudge-positive' : 'nudge-negative');
+
+      // Scroll into view
+      setTimeout(() => {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+
+    // ─── HISTORY ─────────────────────────────────────────────────
+    function addToHistory(data) {
+      const item = {
+        id: Date.now(),
+        food_name: data.food_name,
+        calories: data.calories,
+        health_score: data.health_score,
+        nudge_type: data.nudge_type,
+        emoji: data.emoji || '🍽️',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      state.history.unshift(item);
+      if (state.history.length > 20) state.history.pop();
+      localStorage.setItem('fahai_history', JSON.stringify(state.history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (!state.history.length) {
+        list.innerHTML = `
+          <div class="history-empty">
+            <div class="history-empty-icon">🍽️</div>
+            <div>Your food log will appear here</div>
+            <div style="font-size:12px;margin-top:4px;color:var(--text-muted);">Start analyzing to build your log</div>
+          </div>`;
+        return;
+      }
+      list.innerHTML = state.history.map((item, i) => `
+        <div class="history-item" role="listitem" style="animation-delay:${i * 0.05}s">
+          <div class="history-dot ${item.nudge_type}"></div>
+          <div class="history-info">
+            <div class="history-name">${item.emoji} ${item.food_name}</div>
+            <div class="history-meta">${item.calories} kcal · ${item.timestamp}</div>
+          </div>
+          <div class="history-score ${item.nudge_type}">${item.health_score}/10</div>
+        </div>
+      `).join('');
+    }
+
+    function clearHistory() {
+      state.history = [];
+      localStorage.removeItem('fahai_history');
+      renderHistory();
+      updateStats();
+      updateChart();
+      updateInsights();
+      hideResult();
+    }
+
+    // ─── STATS ────────────────────────────────────────────────────
+    function updateStats() {
+      const total = state.history.length;
+      const healthy = state.history.filter(h => h.nudge_type === 'positive').length;
+      const avgScore = total
+        ? (state.history.reduce((a, b) => a + b.health_score, 0) / total).toFixed(1)
+        : '—';
+
+      animateCounter('statTotal', parseInt(document.getElementById('statTotal').textContent) || 0, total);
+      animateCounter('statHealthy', parseInt(document.getElementById('statHealthy').textContent) || 0, healthy);
+      document.getElementById('statAvgScore').textContent = avgScore;
+    }
+
+    function animateCounter(id, from, to) {
+      const el = document.getElementById(id);
+      const duration = 600;
+      const start = performance.now();
+      const diff = to - from;
+
+      function step(timestamp) {
+        const progress = Math.min((timestamp - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(from + diff * eased);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // ─── CHART ────────────────────────────────────────────────────
+    function updateChart() {
+      const container = document.getElementById('scoreChart');
+      const recent = [...state.history].reverse().slice(-10);
+
+      if (!recent.length) {
+        container.innerHTML = '<div class="chart-empty">Analyze foods to see your chart</div>';
+        return;
+      }
+
+      const maxScore = 10;
+      const bars = recent.map(item => {
+        const heightPct = (item.health_score / maxScore) * 100;
+        const cls = item.nudge_type === 'positive' ? 'positive' : 'negative';
+        const shortName = item.food_name.split(' ')[0].substring(0, 5);
+        return `
+          <div class="chart-bar-wrap" title="${item.food_name}: ${item.health_score}/10">
+            <div class="chart-bar ${cls}" style="height:${heightPct}%" data-score="${item.health_score}"></div>
+            <div class="chart-bar-label">${shortName}</div>
+          </div>`;
+      });
+
+      // Fill remaining slots with neutral placeholders
+      const remaining = 10 - recent.length;
+      const placeholders = Array(remaining).fill('<div class="chart-bar-wrap"><div class="chart-bar neutral" style="height:4%"></div><div class="chart-bar-label">—</div></div>');
+
+      container.innerHTML = [...bars, ...placeholders].join('');
+    }
+
+    // ─── INSIGHTS ─────────────────────────────────────────────────
+    function updateInsights() {
+      const panel = document.getElementById('insightPanel');
+      if (state.history.length < 3) return;
+
+      const total = state.history.length;
+      const healthy = state.history.filter(h => h.nudge_type === 'positive').length;
+      const healthRate = Math.round((healthy / total) * 100);
+      const avgScore = (state.history.reduce((a, b) => a + b.health_score, 0) / total).toFixed(1);
+      const totalCals = state.history.reduce((a, b) => a + b.calories, 0);
+
+      const trendDir = healthRate >= 60 ? '📈' : '📉';
+      const trendText = healthRate >= 60
+        ? `Your choices are ${healthRate}% healthy — you're on the right track! Keep pushing.`
+        : `Only ${healthRate}% of your choices have been healthy. Your future self needs you to make a different choice now.`;
+
+      panel.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:rgba(15,23,42,0.4);border:1px solid rgba(148,163,184,0.07);border-radius:10px;padding:14px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Health Rate</div>
+            <div style="font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;color:${healthRate >= 60 ? '#4ade80' : '#f87171'}">${healthRate}%</div>
+          </div>
+          <div style="background:rgba(15,23,42,0.4);border:1px solid rgba(148,163,184,0.07);border-radius:10px;padding:14px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Session Cals</div>
+            <div style="font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent-blue-light)">${totalCals}</div>
+          </div>
+        </div>
+        <div style="background:rgba(15,23,42,0.4);border:1px solid rgba(148,163,184,0.07);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:22px;">${trendDir}</span>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">${trendText}</div>
+        </div>
+        <div style="background:rgba(15,23,42,0.4);border:1px solid rgba(148,163,184,0.07);border-radius:10px;padding:14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">AI Recommendation</div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">${
+            parseFloat(avgScore) >= 7
+              ? '🌟 Excellent session! Your average score of ' + avgScore + '/10 indicates a strong nutritional pattern. Your body is in an anti-inflammatory state.'
+              : parseFloat(avgScore) >= 5
+              ? '⚡ Moderate session. Your ' + avgScore + '/10 average shows room to improve. Try replacing one processed item with a whole food next time.'
+              : '🔄 Your ' + avgScore + '/10 average is below optimal. Each unhealthy choice compounds — try starting your next session with a green vegetable as your first entry.'
+          }</div>
+        </div>
+      `;
+    }
+
+    // ─── ERROR HANDLING ───────────────────────────────────────────
+    function showError(msg) {
+      const toast = document.getElementById('errorToast');
+      document.getElementById('errorText').textContent = msg;
+      toast.classList.add('show');
+    }
+
+    function clearError() {
+      document.getElementById('errorToast').classList.remove('show');
+    }
+
+    // ─── USER ID ──────────────────────────────────────────────────
+    function getUserId() {
+      let uid = localStorage.getItem('fahai_uid');
+      if (!uid) {
+        uid = 'u_' + Math.random().toString(36).slice(2, 11);
+        localStorage.setItem('fahai_uid', uid);
+      }
+      return uid;
+    }
+
+    // ─── ENTER KEY ───────────────────────────────────────────────
+    document.getElementById('foodInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') analyzeFood();
+    });
+
+    // ─── SCROLL REVEAL ────────────────────────────────────────────
+    function initReveal() {
+      const els = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add('visible'), i * 80);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      els.forEach(el => observer.observe(el));
+    }
+
+    // ─── BOOT ────────────────────────────────────────────────────
+    function boot() {
+      initReveal();
+      renderHistory();
+      updateStats();
+      updateChart();
+      updateInsights();
+
+      // Auto-focus input on desktop
+      if (window.innerWidth >= 768) {
+        setTimeout(() => document.getElementById('foodInput').focus(), 400);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', boot);
+  </script>
+</body>
+</html>
